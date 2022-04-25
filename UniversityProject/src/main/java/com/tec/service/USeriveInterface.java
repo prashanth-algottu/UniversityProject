@@ -39,9 +39,10 @@ public interface USeriveInterface
 	
 	
 //	8. Sort the students within their departments based on their marks
-	
-
 	public List<Students> sortBymarks(String department);
+
+//	credits per hour 
+	public int calcredit(int id);
 
 	
 	

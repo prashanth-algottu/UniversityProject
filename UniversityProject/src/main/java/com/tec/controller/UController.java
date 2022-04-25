@@ -2,6 +2,7 @@ package com.tec.controller;
 
 import java.util.List;
 
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -18,6 +19,16 @@ import com.tec.model.Students;
 import com.tec.model.University;
 import com.tec.service.USeriveInterface;
 
+
+
+class excp extends Thread
+{
+	public String exception()
+	{
+		return "Have to enter marks less than 100";
+	}
+	
+}
 @RestController
 public class UController 
 {
@@ -26,11 +37,19 @@ public class UController
 	
 	//3. Add a student with given details to Computers dept using payload
 	@PostMapping("/add")
-	public String adding(@RequestBody University university  )
+	public String adding(@RequestBody University university)
 	{
+		if(university.getStudents().get(0).getMarks()>100)
+		{
+			excp e = new excp();
+			return e.exception();
+		}
+		else
+		{
+			uSeriveInterface.add(university);
+			return "Sucssesfully Inserted";
+		}
 		
-		uSeriveInterface.add(university);
-		return "Sucssesfully Inserted";
 	}
 
 	//1. Fetch all the students details from the university
@@ -92,7 +111,21 @@ public class UController
 		return uSeriveInterface.sortBymarks(department);
 	}
 	
-	
+	// credits per hour 
+	@GetMapping("/credits/{id}")
+	public String credit(@PathVariable int id)
+	{
+		//return uSeriveInterface.calcredit(id);
+		if(uSeriveInterface.calcredit(id)!=0)
+		{
+			return "Congratulation your completed graduation with the credits of "+ uSeriveInterface.calcredit(id);
+		}
+		else
+		{
+			return "Sorry! your not completed your graduation please be complete soon all the best";
+		}
+		
+	}
 	
 	
 	

@@ -1,14 +1,13 @@
 package com.tec.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +16,9 @@ import com.tec.model.Students;
 import com.tec.model.University;
 import com.tec.repository.URepository;
 import com.tec.repository.UintefaceStudents;
+
+
+
 
 @Service
 public class UServiceImplimentation1 implements USeriveInterface {
@@ -27,18 +29,23 @@ public class UServiceImplimentation1 implements USeriveInterface {
 	@Autowired
 	UintefaceStudents uintefaceStudents;
 
+	//3. Add a student with given details to Computers dept using payload
 	@Override
 	public University add(University university) {
 
+		
 		return uRepository.save(university);
+		
 	}
 
+	//1. Fetch all the students details from the university
 	@Override
 	public List<University> getAll() {
 		List<University> list = uRepository.findAll();
 		return list;
 	}
 
+	//2. Fetch only Mech students from the university
 	@Override
 	public Optional<University> getMech(String string) {
 		int a = 0;
@@ -59,6 +66,7 @@ public class UServiceImplimentation1 implements USeriveInterface {
 		return optional;
 	}
 
+	//4. Fetch only low performing (marks below 40) students from Physics dept
 	@Override
 	public List<Students> lowperformanceByDep(String string) {
 
@@ -82,7 +90,8 @@ public class UServiceImplimentation1 implements USeriveInterface {
 		return s;
 
 	}
-
+	
+	//5. Fetch low performing (marks below 40) students from all depts
 	@Override
 	public List<Students> getalllowperform() {
 
@@ -148,27 +157,14 @@ public class UServiceImplimentation1 implements USeriveInterface {
 	@Override
 	public List<Students> sortNames() {
 
-		List<University> list = uRepository.findAll();
-		List<Students> list1 = list.get(0).getStudents().stream()
-				.sorted((i, j) -> i.getName().compareToIgnoreCase(j.getName())).collect(Collectors.toList());
+		List<Students> list = uintefaceStudents.findAll();
+		
+		List<Students> list2 = list.stream().sorted((i,j)->i.getName().compareToIgnoreCase(j.getName())).collect(Collectors.toList());
+		
 
-		List<Students> list2 = list.get(1).getStudents().stream()
-				.sorted((i, j) -> i.getName().compareToIgnoreCase(j.getName())).collect(Collectors.toList());
+		
 
-		List<Students> list3 = list.get(2).getStudents().stream()
-				.sorted((i, j) -> i.getName().compareToIgnoreCase(j.getName())).collect(Collectors.toList());
-
-		List<Students> list4 = list.get(3).getStudents().stream()
-				.sorted((i, j) -> i.getName().compareToIgnoreCase(j.getName())).collect(Collectors.toList());
-
-		List<Students> list5 = new ArrayList<>();
-
-		list5.addAll(list1);
-		list5.addAll(list2);
-		list5.addAll(list3);
-		list5.addAll(list4);
-
-		return list5;
+		return list2;
 	}
 
 	
@@ -213,9 +209,36 @@ public class UServiceImplimentation1 implements USeriveInterface {
 
 		return list2;
 	}
-	
-	
-	
-	
 
+	// credit and hours
+	@Override
+	public int calcredit(int id) {
+		Optional<Students> optional = uintefaceStudents.findById(id);
+		Students s = optional.get();
+		Date present = new Date();
+		int credits=0;
+		if(present.getYear()-s.getJoiningdate().getYear()>=4)
+		{
+			long l = present.getTime();
+			long m = s.getJoiningdate().getTime();
+			System.out.println(l);
+			long diff = l-m;
+			 long days= TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+			 int sundays = (int) (days/7);
+			 int weekdays = (int) (days-sundays);
+			credits=  weekdays*8;
+			
+			s.setPassoutdate(present);
+			s.setCredits(credits);
+			uintefaceStudents.save(s);
+			
+		}
+		else
+		{
+			return 0;
+		}
+		
+		return credits;
+		
+	}
 }
